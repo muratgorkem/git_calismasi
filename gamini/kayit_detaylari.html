@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="tr">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Kayıt Detayları</title>
+  <style>
+    body {
+      font-family: Arial;
+      background: #f4f4f4;
+      padding: 40px;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: auto;
+      background: white;
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .section {
+      margin-bottom: 30px;
+    }
+
+    .section h3 {
+      margin-bottom: 10px;
+      color: #2c3e50;
+    }
+
+    .info {
+      background-color: #ecf0f1;
+      padding: 15px;
+      border-radius: 6px;
+    }
+
+    .info p {
+      margin: 8px 0;
+    }
+
+    .images {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .images img {
+      max-width: 200px;
+      border-radius: 6px;
+      box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="container">
+    <h2>Kayıt Detayları</h2>
+
+    <div class="section">
+      <h3>Araç Bilgileri</h3>
+      <div class="info" id="aracBilgisi"></div>
+    </div>
+
+    <div class="section">
+      <h3>Kaza Raporu</h3>
+      <div class="info" id="raporMetni"></div>
+    </div>
+    <div class="section">
+      <h3>Not / Açıklama (max 150 karakter)</h3>
+      <div class="info">
+        <input type="text" id="kullaniciNotu" maxlength="150" placeholder="Bu araca özel kısa bir not girin..."
+          style="width: 98%; padding: 8px; border-radius: 4px; border: 1px solid #ccc;">
+        <button id="notKaydetBtn"
+          style="margin-top: 10px; padding: 8px 16px; background-color: #2ecc71; color: white; border: none; border-radius: 4px; cursor: pointer;">
+          Notu Kaydet
+        </button>
+      </div>
+    </div>
+
+    <div class="section">
+      <h3>Yüklenen Görseller</h3>
+      <div class="images" id="resimGalerisi"></div>
+    </div>
+  </div>
+
+
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const id = localStorage.getItem("goruntulenecekAracID");
+
+      const kayitlar = JSON.parse(localStorage.getItem("aracKayitlari")) || [];
+      const arac = kayitlar.find(item => item.id == id);
+
+      const raporlar = JSON.parse(localStorage.getItem("kazaRaporlari")) || {};
+      const resimler = JSON.parse(localStorage.getItem("aracResimleri")) || {};
+      const notlar = JSON.parse(localStorage.getItem("aracNotlari")) || {};
+
+      if (!arac) {
+        document.getElementById("aracBilgisi").innerHTML = "<p>Araç bilgisi bulunamadı.</p>";
+        return;
+      }
+
+      document.getElementById("aracBilgisi").innerHTML = `
+      <p><strong>Plaka:</strong> ${arac.plaka}</p>
+      <p><strong>Marka:</strong> ${arac.marka}</p>
+      <p><strong>Model:</strong> ${arac.model}</p>
+      <p><strong>Yıl:</strong> ${arac.yil}</p>
+      <p><strong>Renk:</strong> ${arac.renk}</p>
+    `;
+
+      document.getElementById("raporMetni").textContent = raporlar[id] || "Kaza raporu bulunamadı.";
+
+      // Notu göster
+      if (notlar[id]) {
+        document.getElementById("kullaniciNotu").value = notlar[id];
+      }
+
+      // Notu kaydet
+      document.getElementById("notKaydetBtn").addEventListener("click", function () {
+        const yeniNot = document.getElementById("kullaniciNotu").value.trim();
+        notlar[id] = yeniNot;
+        localStorage.setItem("aracNotlari", JSON.stringify(notlar));
+        alert("Not başarıyla kaydedildi.");
+      });
+
+      // Görselleri göster ve tıklanınca tam boyutta aç
+      const galeri = document.getElementById("resimGalerisi");
+      (resimler[id] || []).forEach(src => {
+        const link = document.createElement("a");
+        link.href = src;
+        link.target = "_blank";
+        link.rel = "noopener";
+
+        const img = document.createElement("img");
+        img.src = src;
+        img.style.maxWidth = "200px";
+        img.style.margin = "10px";
+        img.style.borderRadius = "6px";
+        img.style.boxShadow = "0 0 5px rgba(0,0,0,0.2)";
+        img.style.cursor = "pointer";
+
+        link.appendChild(img);
+        galeri.appendChild(link);
+      });
+    });
+  </script>
+</body>
+
+</html>

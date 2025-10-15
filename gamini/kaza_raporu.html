@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="tr">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Kaza Raporu</title>
+    <style>
+        body {
+            font-family: Arial;
+            background: #f4f4f4;
+            padding: 40px;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: auto;
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h2 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-top: 15px;
+        }
+
+        textarea,
+        input {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        button {
+            margin-top: 20px;
+            width: 100%;
+            padding: 10px;
+            background-color: #27ae60;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #219150;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <h2>Kaza Raporu ve Araç Görselleri</h2>
+        <form id="raporForm">
+            <label for="rapor">Kaza Raporu:</label>
+            <textarea id="rapor" name="rapor" rows="6" placeholder="Kazanın detaylarını buraya yazınız..."
+                required></textarea>
+
+            <label for="resimler">Araç Görselleri:</label>
+            <input type="file" id="resimler" name="resimler" accept="image/*" multiple required>
+
+            <button type="submit">Kaydet</button>
+        </form>
+    </div>
+
+    <script>
+        document.getElementById("raporForm").addEventListener("submit", function (e) {
+            e.preventDefault();
+
+            const aktifID = localStorage.getItem("aktifAracID");
+            const rapor = document.getElementById("rapor").value.trim();
+            const dosyalar = document.getElementById("resimler").files;
+
+            // Raporu kaydet
+            const raporlar = JSON.parse(localStorage.getItem("kazaRaporlari")) || {};
+            raporlar[aktifID] = rapor;
+            localStorage.setItem("kazaRaporlari", JSON.stringify(raporlar));
+
+            // Görselleri base64 olarak kaydet
+            const readerPromises = [];
+            for (let i = 0; i < dosyalar.length; i++) {
+                const reader = new FileReader();
+                const promise = new Promise((resolve) => {
+                    reader.onload = () => resolve(reader.result);
+                });
+                reader.readAsDataURL(dosyalar[i]);
+                readerPromises.push(promise);
+            }
+
+            Promise.all(readerPromises).then((base64List) => {
+                const resimler = JSON.parse(localStorage.getItem("aracResimleri")) || {};
+                resimler[aktifID] = base64List;
+                localStorage.setItem("aracResimleri", JSON.stringify(resimler));
+
+                // Detay sayfasına geç
+                localStorage.setItem("goruntulenecekAracID", aktifID);
+                window.location.href = "kayit_detaylari.html";
+            });
+        });
+    </script>
+
+</body>
+
+</html>

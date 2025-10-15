@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="tr">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Araç Kayıt</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+      padding: 40px;
+    }
+
+    .container {
+      max-width: 500px;
+      margin: auto;
+      background: white;
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      margin-top: 15px;
+    }
+
+    input {
+      width: 100%;
+      padding: 10px;
+      margin-top: 5px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+
+    button {
+      margin-top: 20px;
+      width: 100%;
+      padding: 10px;
+      background-color: #3498db;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #2980b9;
+    }
+  </style>
+</head>
+
+<body>
+
+  <script>
+    document.getElementById("aracForm").addEventListener("submit", function (e) {
+      e.preventDefault(); // Sayfa yenilenmesini engeller
+
+      // Bilgiler alındıktan sonra yönlendirme yapılır
+      window.location.href = "kaza_raporu.html";
+    });
+  </script>
+  <script>
+    document.getElementById("aracForm").addEventListener("submit", function (e) {
+      e.preventDefault();
+
+      const arac = {
+        plaka: document.getElementById("plaka").value.trim(),
+        marka: document.getElementById("marka").value.trim(),
+        model: document.getElementById("model").value.trim(),
+        yil: document.getElementById("yil").value.trim(),
+        renk: document.getElementById("renk").value.trim()
+      };
+
+      const kayitlar = JSON.parse(localStorage.getItem("aracKayitlari")) || [];
+      kayitlar.push(arac);
+      localStorage.setItem("aracKayitlari", JSON.stringify(kayitlar));
+
+      window.location.href = "kaza_raporu.html";
+    });
+  </script>
+  <div class="container">
+    <h2>Araç Kayıt</h2>
+    <form id="aracForm">
+      <!-- Araç bilgileri alanları -->
+      <label for="plaka">Plaka No:</label>
+      <input type="text" id="plaka" name="plaka" required>
+
+      <label for="marka">Marka:</label>
+      <input type="text" id="marka" name="marka" required>
+
+      <label for="model">Model:</label>
+      <input type="text" id="model" name="model" required>
+
+      <label for="yil">Model Yılı:</label>
+      <input type="number" id="yil" name="yil" required>
+
+      <label for="Ruhsat Sahibi">Ruhsat Sahibi:</label>
+      <input type="text" id="Ruhsat" name="Ruhsat" required>
+
+      <label for="renk">Renk:</label>
+      <input type="text" id="renk" name="renk">
+
+      <button type="submit">Kaydet</button>
+    </form>
+
+    <!-- Yeni buton: Kayıtlı araçlara geç -->
+    <button id="listeyeGit" style="margin-top: 20px; background-color: #2ecc71;">Kayıtlı Araçları Gör</button>
+  </div>
+  <script>
+    // Araç bilgilerini kaydet ve kaza raporuna geç
+    document.getElementById("aracForm").addEventListener("submit", function (e) {
+      e.preventDefault();
+
+      const arac = {
+        plaka: document.getElementById("plaka").value.trim(),
+        marka: document.getElementById("marka").value.trim(),
+        model: document.getElementById("model").value.trim(),
+        yil: document.getElementById("yil").value.trim(),
+        renk: document.getElementById("renk").value.trim()
+      };
+
+      const kayitlar = JSON.parse(localStorage.getItem("aracKayitlari")) || [];
+      kayitlar.push(arac);
+      localStorage.setItem("aracKayitlari", JSON.stringify(kayitlar));
+
+      window.location.href = "kaza_raporu.html";
+    });
+
+    // Kayıtlı araçlar sayfasına geçiş
+    document.getElementById("listeyeGit").addEventListener("click", function () {
+      window.location.href = "kayit_listesi.html";
+    });
+  </script>
+  <script>
+    document.getElementById("aracForm").addEventListener("submit", function (e) {
+      e.preventDefault();
+
+      const aracID = Date.now(); // Benzersiz ID (timestamp)
+
+      const arac = {
+        id: aracID,
+        plaka: document.getElementById("plaka").value.trim(),
+        marka: document.getElementById("marka").value.trim(),
+        model: document.getElementById("model").value.trim(),
+        yil: document.getElementById("yil").value.trim(),
+        renk: document.getElementById("renk").value.trim()
+      };
+
+      const kayitlar = JSON.parse(localStorage.getItem("aracKayitlari")) || [];
+      kayitlar.push(arac);
+      localStorage.setItem("aracKayitlari", JSON.stringify(kayitlar));
+
+      // ID'yi geçici olarak sakla, kaza raporu sayfası bu ID'yi kullanacak
+      localStorage.setItem("aktifAracID", aracID);
+
+      window.location.href = "kaza_raporu.html";
+    });
+  </script>
+
+</body>
+
+</html>

@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="tr">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Kayıtlı Araçlar</title>
+  <style>
+    body {
+      font-family: Arial;
+      background-color: #f4f4f4;
+      padding: 40px;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: auto;
+      background: white;
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+
+    th,
+    td {
+      padding: 10px;
+      border: 1px solid #ccc;
+      text-align: left;
+    }
+
+    th {
+      background-color: #3498db;
+      color: white;
+    }
+
+    button {
+      padding: 6px 12px;
+      margin-right: 5px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .detay-btn {
+      background-color: #2ecc71;
+      color: white;
+    }
+
+    .sil-btn {
+      background-color: #e74c3c;
+      color: white;
+    }
+
+    select {
+      padding: 6px;
+      border-radius: 4px;
+      border: 1px solid #ccc;
+      margin-top: 5px;
+    }
+
+    button:hover {
+      opacity: 0.9;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="container">
+    <h2>Kayıtlı Araçlar</h2>
+    <table id="kayitTablosu">
+      <thead>
+        <tr>
+          <th>Plaka</th>
+          <th>Marka</th>
+          <th>Model</th>
+          <th>Yıl</th>
+          <th>Renk</th>
+          <th>İşlemler</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
+  <script>
+    const kayitlar = JSON.parse(localStorage.getItem("aracKayitlari")) || [];
+    const islemler = JSON.parse(localStorage.getItem("aracIslemleri")) || {};
+    const tablo = document.querySelector("#kayitTablosu tbody");
+
+    function tabloyuGuncelle() {
+      tablo.innerHTML = "";
+
+      if (kayitlar.length === 0) {
+        const bosSatir = document.createElement("tr");
+        bosSatir.innerHTML = `<td colspan="6">Kayıtlı araç bulunamadı.</td>`;
+        tablo.appendChild(bosSatir);
+        return;
+      }
+
+      kayitlar.forEach((arac) => {
+        const secili = islemler[arac.id] || "";
+
+        const satir = document.createElement("tr");
+        satir.innerHTML = `
+          <td>${arac.plaka}</td>
+          <td>${arac.marka}</td>
+          <td>${arac.model}</td>
+          <td>${arac.yil}</td>
+          <td>${arac.renk}</td>
+          <td>
+            <button class="detay-btn" onclick="detayGoster(${arac.id})">Detay</button>
+            <button class="sil-btn" onclick="aracSil(${arac.id})">Sil</button>
+            <br>
+            <select onchange="islemSec(${arac.id}, this.value)">
+              <option value="">Durum Seç</option>
+              <option value="BT" ${secili === "BT" ? "selected" : ""}>BT - Bitti</option>
+              <option value="DE" ${secili === "DE" ? "selected" : ""}>DE - Devam Ediyor</option>
+              <option value="MB" ${secili === "MB" ? "selected" : ""}>MB - Malzeme Bekliyor</option>
+              <option value="SR" ${secili === "SR" ? "selected" : ""}>SR - Dış Serviste</option>
+            </select>
+          </td>
+        `;
+        tablo.appendChild(satir);
+      });
+    }
+
+    function detayGoster(id) {
+      localStorage.setItem("goruntulenecekAracID", id);
+      window.location.href = "kayit_detaylari.html";
+    }
+
+    function aracSil(id) {
+      if (!confirm("Bu aracı ve tüm bağlı verileri silmek istediğinize emin misiniz?")) return;
+
+      const yeniKayitlar = kayitlar.filter(item => item.id !== id);
+      localStorage.setItem("aracKayitlari", JSON.stringify(yeniKayitlar));
+
+      const raporlar = JSON.parse(localStorage.getItem("kazaRaporlari")) || {};
+      delete raporlar[id];
+      localStorage.setItem("kazaRaporlari", JSON.stringify(raporlar));
+
+      const resimler = JSON.parse(localStorage.getItem("aracResimleri")) || {};
+      delete resimler[id];
+      localStorage.setItem("aracResimleri", JSON.stringify(resimler));
+
+      const islemler = JSON.parse(localStorage.getItem("aracIslemleri")) || {};
+      delete islemler[id];
+      localStorage.setItem("aracIslemleri", JSON.stringify(islemler));
+
+      location.reload();
+    }
+
+    function islemSec(id, deger) {
+      const islemler = JSON.parse(localStorage.getItem("aracIslemleri")) || {};
+      islemler[id] = deger;
+      localStorage.setItem("aracIslemleri", JSON.stringify(islemler));
+    }
+
+    tabloyuGuncelle();
+  </script>
+
+</body>
+
+</html>
